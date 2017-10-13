@@ -124,7 +124,8 @@ There are two places where transfer parameters can be set:
 #### Cobalt task transfer parameters
 
 The Cobalt task takes four different kinds of parameters: [Source endpoint](#source) settings, [Destination endpoint](#destination) settings, [Message processing](#message-processing-steps) settings and generic [Parameters](#parameters)
-##### Source
+
+### Source
 ---
 **Type**  
 [File | Ftp | Ftps | Sftp | ServiceBus]
@@ -286,9 +287,9 @@ Connection string for Azure Service Bus or Service Bus for Windows Server instan
 Path of the entity (queue, topic or subscription) to send or receive messages to or from. When sending messages, give the name of the queue or topic. When receiving messages, give the queue name, or if the entity is a subscription, the entire path to it, in the format [topic name]/subscriptions/[subscription name]
     Things to note:
     The topics, queues or subscriptions will not be created automatically. If they do not exist, an error will be thrown and the transfer will fail.
-    For source endpoints, only a single message will be received for a transfer, i.e. batch receive is not supported. The message will also be completed immediately after receive, even before it is written to disk to a temporary file. Therefore if you need guarantees that the messages are processed, you will need to create a custom endpoint that e.g. persists the messages being processed, or otherwise handles possible system crashes etc.
+    For source endpoints, only a single message will be received for a transfer, i.e. batch receive is not supported. The message will also be completed immediately after receive, even before it is written to disk to a temporary file.
 
-##### Destination  
+### Destination  
 ---
 Destination parameter section contains same parameters as in Source section, so same descriptions generally apply to them too with exception in FileName parameter.
 
@@ -302,7 +303,7 @@ Examples of usage:
 
 Macros can also be used for destination file names. See Macro reference for details on how to use macros.
 
-##### Message processing steps  
+### Message processing steps  
 You can define steps for processing messages after they have been fetched from the source endpoint but before they are sent to the destination endpoint.
 
 **Type**  
@@ -356,7 +357,7 @@ Source file character encoding from which to convert. Possible values are listed
 **DestinationEncoding**  
 Destination file character encoding to which to convert. Possible values are listed in the Name column of the table that appears in MSDN's Encoding class'  documentation.
 
-##### Parameters
+### Parameters
 ---
 General parameters for the transfer
 
