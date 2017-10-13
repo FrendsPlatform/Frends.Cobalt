@@ -9,10 +9,10 @@
             - [Service Bus logging](#service-bus-logging)
         - [Transfer parameter reference](#transfer-parameter-reference)
             - [Cobalt task transfer parameters](#cobalt-task-transfer-parameters)
-                - [Source](#source)
-                - [Destination](#destination)
-                - [Message processing steps](#message-processing-steps)
-                - [Parameters](#parameters)
+        - [Source](#source)
+        - [Destination](#destination)
+        - [Message processing steps](#message-processing-steps)
+        - [Parameters](#parameters)
             - [Macro reference](#macro-reference)
         - [Transfer result](#transfer-result)
         - [Known issues](#known-issues)
@@ -55,8 +55,8 @@ Initialize the transfer based on the configuration and open source connection(s)
 
     Note: If you have set the MaxConcurrentConnections to more than 1, the given number of source connections are opened.
 
-- ListFiles
-    - Get a list of files from the source endpoint according to the filename/mask. If there are no files to transfer, the source connections are closed and the transfer ends with the ActionSkipped state
+- ListFiles  
+Get a list of files from the source endpoint according to the filename/mask. If there are no files to transfer, the source connections are closed and the transfer ends with the ActionSkipped state
 - Transfer files  
 If there are files to transfer, they are then transferred individually.
 If there are more than one source connection (MaxConcurrentConnections is set to > 1), the equal number of destination connections will be opened, and the files are transferred in parallel using these source-destination connection pairs.
@@ -150,7 +150,7 @@ Name of the file(s) to be transferred. File masks can also be used here for tran
 | - | - | - |
 | `*t.txt`                      |   text.txt, t.txt                         |   foo.txt, text.foo
 | `?t.txt`                      |   2t.txt                                  |   t.txt, tt.foo
-| `test.(txt|xml)`              |   test.txt, test.xml                      |   test.foo, foo.txt
+| `test.(txt\|xml)`             |   test.txt, test.xml                      |   test.foo, foo.txt
 | `test.[^t][^x][^t]`           |   test.xml, test.foo                      |   test.txt, test.tii
 | `test\d{4,4}.txt`             |   test1234.txt, test6789.txt              |   test123.txt
 | `<regex>^(?!prof).*_test.txt` |   pro_test.txt, pref_test.txt, _test.txt  |   prof_test.txt, pro_tet.txt
@@ -479,6 +479,7 @@ Recommended:
 
 ### Transfer result
 The Cobalt transfer will return a result object with the following fields:
+
 | Field | Description | Example |
 | - | - | - |
 | UserResultMessage | The result message, containing details on all transferred files, possible errors etc. | 3 files transferred: cobaltTestFile1.txt, cobaltTestFile2.txt, cobaltTestFile3.txt |
@@ -488,7 +489,7 @@ The Cobalt transfer will return a result object with the following fields:
 | FailedTransferCount | Number of files that failed to transfer | 0 |
 | TransferredFileNames | Array of file names of transferred files | ["cobaltTestFile1.txt","cobaltTestFile2.txt","cobaltTestFile3.txt"] |
 | TransferredFilePaths | Array of full source file paths of transferred files | ["F:\cobaltTestFile1.txt","F:\cobaltTestFile2.txt","F:\cobaltTestFile3.txt"]
-| TransferErrors | List of any transfer errors | 
+| TransferErrors | List of any transfer errors | |
 | OperationsLog | If EnableOperationLog setting was on, this field will contain the logs of file, FTP, etc. operations executed during transfer. The log lines will be grouped by time stamp. | { "2016-11-18 08:34:44.60Z": "FILE LIST F:\\cobaltTestFile.txt \nFILE LIST F:\\output_cobaltTestFile.txt...", "2016-11-18 08:34:44.70Z": "FILE EXISTS F:\\cobaltTestFile1.txt: True \nPutFile: Uploading temporary destination file cobalt_6361505488471437865h4itdni.8CO \n...","2016-11-18 08:34:44.80Z": "RestoreSourceFile: Restoring source file from F:\\cobalt_636150548846361630hzickoeu.8CO to the original name cobaltTestFile.txt \n...", ... } |
 
 
