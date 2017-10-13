@@ -2,22 +2,20 @@
     - [Installing](#installing)
     - [Building](#building)
     - [Contributing](#contributing)
-    - [Documentation](#documentation)
-        - [Technical overview](#technical-overview)
-            - [Transfer overview](#transfer-overview)
-            - [Error handling](#error-handling)
-            - [Service Bus logging](#service-bus-logging)
-        - [Transfer parameter reference](#transfer-parameter-reference)
-            - [Cobalt task transfer parameters](#cobalt-task-transfer-parameters)
+    - [Technical overview](#technical-overview)
+        - [Transfer overview](#transfer-overview)
+        - [Error handling](#error-handling)
+        - [Service Bus logging](#service-bus-logging)
+    - [Transfer parameter reference](#transfer-parameter-reference)
         - [Source](#source)
         - [Destination](#destination)
         - [Message processing steps](#message-processing-steps)
         - [Parameters](#parameters)
-            - [Macro reference](#macro-reference)
+        - [Macro reference](#macro-reference)
         - [Transfer result](#transfer-result)
-        - [Known issues](#known-issues)
-            - [Source file operation may overwrite existing files on FTP](#source-file-operation-may-overwrite-existing-files-on-ftp)
-            - [Failure in source file operation logs the transfer failed even if the files were transferred](#failure-in-source-file-operation-logs-the-transfer-failed-even-if-the-files-were-transferred)
+    - [Known issues](#known-issues)
+        - [Source file operation may overwrite existing files on FTP](#source-file-operation-may-overwrite-existing-files-on-ftp)
+        - [Failure in source file operation logs the transfer failed even if the files were transferred](#failure-in-source-file-operation-logs-the-transfer-failed-even-if-the-files-were-transferred)
 
 
 # Frends.Cobalt
@@ -40,13 +38,12 @@ Source code is not yet available, but we hope to add it soon
 ## Contributing
 Contributing is not possible at this time
 
-## Documentation
-### Technical overview
+## Technical overview
 FRENDS Cobalt is implemented as a .NET 4.5.2 class that is run in a FRENDS4 process.
 - [Transfer overview](#transfer-overview)
 - [Error handling](#error-handling)
 - [Service Bus logging](#service-bus-logging)
-#### Transfer overview
+### Transfer overview
 The file transfer progress has the following steps:
 
 Initialize
@@ -87,17 +84,9 @@ Delete the source file if the parameter "SourceOperation" is set to Delete.
 Close the source and destination endpoint connections.  
 If the transfer is cancelled (e.g. by calling Terminate on the process instance), the files that are currently being transferred will be processed until finished, but no new files will be transferred. The task instance will finish once all file transfers that were processing at the time of cancellation have finished. The cancelled transfer end result will be Failed.  
 
-When the task has finished, it returns a CobaltResult object which contains the following properties:
+When the task has finished, it returns a CobaltResult object which has the properties described in the [Transfer result](#tranfer-result) section.
 
-| Property | Type | Description |
-|-|-|-|
-| Success | bool | Did all of the file transfers succeed |
-| UserResultMessage | string | A listing of all the files transferred and description of any errors encountered |
-| ActionSkipped | bool | True if there were no files to transfer |
-
-
-
-#### Error handling
+### Error handling
 
 If the opening of the connection to the source endpoint fails, or the listing of the source files fails, the transfer is immediately aborted and an error is logged to the event log.
 
@@ -109,21 +98,17 @@ If the source connection is opened correctly, but the transfer of a single file 
 
 On connection errors FTP(S) and SFTP endpoints will try to reopen the connection and retry the failed operation once per operation.
 
-#### Service Bus logging
+### Service Bus logging
 
 To enable logging to a service bus message queue the agent running the task needs to have the following application key set:
 Frends.Cobalt.FileTransferLogQueueName
 This setting can be set in the FRENDSAccService.exe.config file. The configuration will be enabled after a service restart.
 
-### Transfer parameter reference
+## Transfer parameter reference
 There are two places where transfer parameters can be set:
 
 - Technical transfer parameters, like workdir location, given as process parameters
 - The transfer specific parameters, like source and destination details, given as connection point data
-
-#### Cobalt task transfer parameters
-
-The Cobalt task takes four different kinds of parameters: [Source endpoint](#source) settings, [Destination endpoint](#destination) settings, [Message processing](#message-processing-steps) settings and generic [Parameters](#parameters)
 
 ### Source
 ---
@@ -437,7 +422,7 @@ Folder that FRENDS Cobalt uses to store local working copies of files. If empty,
 
     Note: If you define the WorkDir, make sure the FRENDS4 Service user account has read, write and modify access to the directory.
 
-#### Macro reference  
+### Macro reference  
 Macros can be used to dynamically configure source directory, destination directory or destination file name for a file transfer.  
 Generally the following rules apply for macros:  
 - Macros are case insensitive.
@@ -493,13 +478,13 @@ The Cobalt transfer will return a result object with the following fields:
 | OperationsLog | If EnableOperationLog setting was on, this field will contain the logs of file, FTP, etc. operations executed during transfer. The log lines will be grouped by time stamp. | { "2016-11-18 08:34:44.60Z": "FILE LIST F:\\cobaltTestFile.txt \nFILE LIST F:\\output_cobaltTestFile.txt...", "2016-11-18 08:34:44.70Z": "FILE EXISTS F:\\cobaltTestFile1.txt: True \nPutFile: Uploading temporary destination file cobalt_6361505488471437865h4itdni.8CO \n...","2016-11-18 08:34:44.80Z": "RestoreSourceFile: Restoring source file from F:\\cobalt_636150548846361630hzickoeu.8CO to the original name cobaltTestFile.txt \n...", ... } |
 
 
-### Known issues
-#### Source file operation may overwrite existing files on FTP
+## Known issues
+### Source file operation may overwrite existing files on FTP
 When renaming or moving source the source files with SourceOperation with FTP, you should note that existing files may get overwritten. At least Microsoft's IIS FTP Server overwrites existing files renaming/moving files, this may happen on other servers as well.
 
 If you want to store the original source files somewhere, and do not want to use the backup operation, it is recommended to append e.g. the datetime to the moved or renamed file name by using a file name like %DateTime%*
 
-#### Failure in source file operation logs the transfer failed even if the files were transferred
+### Failure in source file operation logs the transfer failed even if the files were transferred
 SourceFileOperations Delete or Nothing are executed only after the actual file transfer has been completed. There is a possibility that they will fail (e.g. another file with the original source file name has been created in the directory, so renaming the temporary file back to the original name (option Nothing) will fail). This error will be logged as a failed file transfer, even though the file has been transferred to the destination. In this case, the logged error description will mention that only the source operation has failed and the file has been transferred.
 
 If you get these kinds of errors, you should fix the original error, e.g. not writing a new file to the source directory with always the same name.
