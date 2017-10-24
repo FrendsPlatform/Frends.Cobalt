@@ -1,25 +1,5 @@
-- [Frends.Cobalt](#frendscobalt)
-    - [Installing](#installing)
-    - [Building](#building)
-    - [Contributing](#contributing)
-    - [Technical overview](#technical-overview)
-        - [Transfer overview](#transfer-overview)
-        - [Error handling](#error-handling)
-        - [Service Bus logging](#service-bus-logging)
-    - [Transfer parameter reference](#transfer-parameter-reference)
-        - [Source](#source)
-        - [Destination](#destination)
-        - [Message processing steps](#message-processing-steps)
-        - [Parameters](#parameters)
-        - [Macro reference](#macro-reference)
-        - [Transfer result](#transfer-result)
-    - [Known issues](#known-issues)
-        - [Source file operation may overwrite existing files on FTP](#source-file-operation-may-overwrite-existing-files-on-ftp)
-        - [Failure in source file operation logs the transfer failed even if the files were transferred](#failure-in-source-file-operation-logs-the-transfer-failed-even-if-the-files-were-transferred)
-
-
 # Frends.Cobalt
-FRENDS Cobalt is a Task library built for transferring files between file, FTP, FTPS and SFTP endpoints with the possibility of processing the files during the transfer.
+FRENDS Cobalt is a FRENDS Task library built for transferring files between file, FTP, FTPS and SFTP endpoints with the possibility of processing the files during the transfer.
 
 With FRENDS Cobalt you can easily automate recurring file transfers within the enterprise. The transfers are configured as parts of a FRENDS4 Process in the FRENDS4 management site. The same site can be used to run and monitor the transfers as well.
 
@@ -27,33 +7,39 @@ FRENDS Cobalt can read files from and deliver files to file system, FTP, FTPS an
 
 Possible errors in FRENDS Cobalt executions are reported to the Windows EventLog on the Agent and in FRENDS4 management site as well, so operators can take action as required. In addition, FRENDS Cobalt uses Log4Net for logging purposes that can be configured to e.g. send reports as needed.
 
-## Installing
-You can install the task via FRENDS UI Task view or you can find the nuget package from the following nuget feed
+- [Installing](#installing)
+- [Technical overview](#technical-overview)
+    - [Transfer overview](#transfer-overview)
+    - [Error handling](#error-handling)
+    - [Service Bus logging](#service-bus-logging)
+- [Transfer parameter reference](#transfer-parameter-reference)
+    - [Source](#source)
+    - [Destination](#destination)
+    - [Message processing steps](#message-processing-steps)
+    - [Parameters](#parameters)
+    - [Macro reference](#macro-reference)
+    - [Transfer result](#transfer-result)
+- [Known issues](#known-issues)
+    - [Source file operation may overwrite existing files on FTP](#source-file-operation-may-overwrite-existing-files-on-ftp)
+    - [Failure in source file operation logs the transfer failed even if the files were transferred](#failure-in-source-file-operation-logs-the-transfer-failed-even-if-the-files-were-transferred)
+- [Building](#building)
+- [Contributing](#contributing)
+
+# Installing
+You can install the task via FRENDS UI Task view or you can find the nuget package from the FRENDS NuGet feed at
 `https://www.myget.org/F/frends/api/v2`
 
+# Technical overview
 
-## Building
-Source code is not yet available, but we hope to add it soon
-
-## Contributing
-Contributing is not possible at this time
-
-## Technical overview
-FRENDS Cobalt is implemented as a .NET 4.5.2 class that is run in a FRENDS4 process.
-- [Transfer overview](#transfer-overview)
-- [Error handling](#error-handling)
-- [Service Bus logging](#service-bus-logging)
-### Transfer overview
+## Transfer overview
 The file transfer progress has the following steps:
 
-Initialize
-
-Initialize the transfer based on the configuration and open source connection(s).
-
-    Note: If you have set the MaxConcurrentConnections to more than 1, the given number of source connections are opened.
+- Initialize  
+Initializes the transfer and opens the source connection. If you have set the "MaxConcurrentConnections" option to more than 1, the given number of source connections are opened.
 
 - ListFiles  
-Get a list of files from the source endpoint according to the filename/mask. If there are no files to transfer, the source connections are closed and the transfer ends with the ActionSkipped state
+Get a list of files from the source endpoint according to the filename/mask. If there are no files to transfer, the source connections are closed, and the transfer finishes. The result of the task will then depend on what the option "NoSourceAction" was set to. If it was set to `Error`, either the `#result.Success` property will be set to `false`, or if the "ThrowOnError" option was also set, an exception is thrown. If the "NoSourceAction" was set to `Info` or `Ignore`, the `#result.Success` will be set to `true` and `#result.ActionSkipped` also set to `true`.
+
 - Transfer files  
 If there are files to transfer, they are then transferred individually.
 If there are more than one source connection (MaxConcurrentConnections is set to > 1), the equal number of destination connections will be opened, and the files are transferred in parallel using these source-destination connection pairs.
@@ -86,7 +72,7 @@ If the transfer is cancelled (e.g. by calling Terminate on the process instance)
 
 When the task has finished, it returns a CobaltResult object which has the properties described in the [Transfer result](#tranfer-result) section.
 
-### Error handling
+## Error handling
 
 If the opening of the connection to the source endpoint fails, or the listing of the source files fails, the transfer is immediately aborted and an error is logged to the event log.
 
@@ -98,20 +84,20 @@ If the source connection is opened correctly, but the transfer of a single file 
 
 On connection errors FTP(S) and SFTP endpoints will try to reopen the connection and retry the failed operation once per operation.
 
-### Service Bus logging
+## Service Bus logging
 
 To enable logging to a service bus message queue the agent running the task needs to have the following application key set:
 Frends.Cobalt.FileTransferLogQueueName
 This setting can be set in the FRENDSAccService.exe.config file. The configuration will be enabled after a service restart.
 
-## Transfer parameter reference
+# Transfer parameter reference
 There are two places where transfer parameters can be set:
 
 - Technical transfer parameters, like workdir location, given as process parameters
 - The transfer specific parameters, like source and destination details, given as connection point data
 
-### Source
----
+## Source
+
 **Type**  
 [File | Ftp | Ftps | Sftp | ServiceBus]
 
@@ -274,8 +260,8 @@ Path of the entity (queue, topic or subscription) to send or receive messages to
     The topics, queues or subscriptions will not be created automatically. If they do not exist, an error will be thrown and the transfer will fail.
     For source endpoints, only a single message will be received for a transfer, i.e. batch receive is not supported. The message will also be completed immediately after receive, even before it is written to disk to a temporary file.
 
-### Destination  
----
+## Destination  
+
 Destination parameter section contains same parameters as in Source section, so same descriptions generally apply to them too with exception in FileName parameter.
 
 **FileName**  
@@ -288,7 +274,7 @@ Examples of usage:
 
 Macros can also be used for destination file names. See Macro reference for details on how to use macros.
 
-### Message processing steps  
+## Message processing steps  
 You can define steps for processing messages after they have been fetched from the source endpoint but before they are sent to the destination endpoint.
 
 **Type**  
@@ -342,8 +328,8 @@ Source file character encoding from which to convert. Possible values are listed
 **DestinationEncoding**  
 Destination file character encoding to which to convert. Possible values are listed in the Name column of the table that appears in MSDN's Encoding class'  documentation.
 
-### Parameters
----
+## Parameters
+
 General parameters for the transfer
 
 **MaxConcurrentTransfers**  
@@ -422,7 +408,7 @@ Folder that FRENDS Cobalt uses to store local working copies of files. If empty,
 
     Note: If you define the WorkDir, make sure the FRENDS4 Service user account has read, write and modify access to the directory.
 
-### Macro reference  
+## Macro reference  
 Macros can be used to dynamically configure source directory, destination directory or destination file name for a file transfer.  
 Generally the following rules apply for macros:  
 - Macros are case insensitive.
@@ -462,14 +448,14 @@ Not recommended:
 Recommended:
 - %SourceFileName%%Date%%SourceFileExtension% -> sample2008-08-26.txt
 
-### Transfer result
+## Transfer result
 The Cobalt transfer will return a result object with the following fields:
 
 | Field | Description | Example |
 | - | - | - |
 | UserResultMessage | The result message, containing details on all transferred files, possible errors etc. | 3 files transferred: cobaltTestFile1.txt, cobaltTestFile2.txt, cobaltTestFile3.txt |
 | Success | If true, the transfer was successful | true |
-| ActionSkipped | If true, no files were transferred | false |
+| ActionSkipped | If true, the transfer was successful, but no files were transferred. This happens e.g. if there were no files in the source directory and "NoSourceAction" set to was `Ignore` | false |
 | SuccesfulTransferCount | Number of successfully transferred files | 3 |
 | FailedTransferCount | Number of files that failed to transfer | 0 |
 | TransferredFileNames | Array of file names of transferred files | ["cobaltTestFile1.txt","cobaltTestFile2.txt","cobaltTestFile3.txt"] |
@@ -477,14 +463,19 @@ The Cobalt transfer will return a result object with the following fields:
 | TransferErrors | List of any transfer errors | |
 | OperationsLog | If EnableOperationLog setting was on, this field will contain the logs of file, FTP, etc. operations executed during transfer. The log lines will be grouped by time stamp. | { "2016-11-18 08:34:44.60Z": "FILE LIST F:\\cobaltTestFile.txt \nFILE LIST F:\\output_cobaltTestFile.txt...", "2016-11-18 08:34:44.70Z": "FILE EXISTS F:\\cobaltTestFile1.txt: True \nPutFile: Uploading temporary destination file cobalt_6361505488471437865h4itdni.8CO \n...","2016-11-18 08:34:44.80Z": "RestoreSourceFile: Restoring source file from F:\\cobalt_636150548846361630hzickoeu.8CO to the original name cobaltTestFile.txt \n...", ... } |
 
-
-## Known issues
-### Source file operation may overwrite existing files on FTP
+# Known issues
+## Source file operation may overwrite existing files on FTP
 When renaming or moving source the source files with SourceOperation with FTP, you should note that existing files may get overwritten. At least Microsoft's IIS FTP Server overwrites existing files renaming/moving files, this may happen on other servers as well.
 
 If you want to store the original source files somewhere, and do not want to use the backup operation, it is recommended to append e.g. the datetime to the moved or renamed file name by using a file name like %DateTime%*
 
-### Failure in source file operation logs the transfer failed even if the files were transferred
+## Failure in source file operation logs the transfer failed even if the files were transferred
 SourceFileOperations Delete or Nothing are executed only after the actual file transfer has been completed. There is a possibility that they will fail (e.g. another file with the original source file name has been created in the directory, so renaming the temporary file back to the original name (option Nothing) will fail). This error will be logged as a failed file transfer, even though the file has been transferred to the destination. In this case, the logged error description will mention that only the source operation has failed and the file has been transferred.
 
 If you get these kinds of errors, you should fix the original error, e.g. not writing a new file to the source directory with always the same name.
+
+# Building
+Source code is not yet available, but we hope to add it soon
+
+# Contributing
+Contributing is not possible at this time
