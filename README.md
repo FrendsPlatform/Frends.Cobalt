@@ -26,7 +26,7 @@ Possible errors in FRENDS Cobalt executions are reported to the Windows EventLog
 - [Contributing](#contributing)
 
 # Installing
-You can install the task via FRENDS UI Task view or you can find the nuget package from the FRENDS NuGet feed at
+You can install the task via FRENDS UI Task view or you can find the NuGet package from the FRENDS NuGet feed at
 `https://www.myget.org/F/frends/api/v2`
 
 # Technical overview
@@ -174,6 +174,14 @@ The length of time, in seconds, until the connection times out. You can use valu
 **Use large buffers**  
 If set, will explicitly use larger TCP socket buffers (4 MB for receive, 256 kB for send) instead of the defaults. This may increase especially download speeds.
 
+**Encoding**  
+Optional encoding to use with commands, their parameters and responses such as filenames. Example values: utf-8, utf-16, windows-1252
+
+**Advanced settings JSON**  
+Optional JSON structure which can be used to override Rebex library parameters. Available settings that can be overridden: 
+https://api.rebex.net/##RebexTotalPack.chm/Html/AllMembers_T_Rebex_Net_FtpSettings.htm#propertyTableToggle  
+Example: { "UseLargeBuffers": false }
+
 **Sftp**  
 SFTP specific settings
 
@@ -211,6 +219,14 @@ The default algorithm for calculating the host key signature. DSS by default
 - ECDsaNistP521 = Elliptic Curve Digital Signature Algorithm based on NIST P-521curve
 - Any = Any algorithm
 
+**Encoding**  
+Optional encoding to use with commands, their parameters and responses such as filenames. Example values: utf-8, utf-16, windows-1252
+
+**Advanced settings JSON**  
+Optional JSON structure which can be used to override Rebex library parameters. Available settings that can be overridden: 
+https://api.rebex.net/##RebexTotalPack.chm/Html/AllMembers_T_Rebex_Net_SFtpSettings.htm#propertyTableToggle  
+Example: { "DisableTransferQueue": true }
+
 **Ftps**  
 FTPS specific settings
 
@@ -247,6 +263,14 @@ The length of time, in seconds, until the connection times out. You can use valu
 
 **Use large buffers**  
 If set, will explicitly use larger TCP socket buffers (4 MB for receive, 256 kB for send) instead of the defaults. This may increase especially download speeds.
+
+**Encoding**  
+Optional encoding to use with commands, their parameters and responses such as filenames. Example values: utf-8, utf-16, windows-1252
+
+**Advanced settings JSON**  
+Optional JSON structure which can be used to override Rebex library parameters. Available settings that can be overridden: 
+https://api.rebex.net/##RebexTotalPack.chm/Html/AllMembers_T_Rebex_Net_FtpSettings.htm#propertyTableToggle  
+Example: { "UseLargeBuffers": false }
 
 **ServiceBus**  
 Service Bus specific settings. Service bus endpoint can be used for sending and retrieving messages. Due to the limitations of service bus the maximum supported file size for sending is limited to 250KB (Service bus supports message sizes up to 256KB). Endpoint can be used to push many and to retrieve one message per execution. MaxConcurrentConnections should be set to 1 as the same connection is shared by all threads (increasing the value will just cause overhead). The endpoint sends and receives the message body serialized as a Stream.
