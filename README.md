@@ -194,6 +194,9 @@ SFTP specific settings
 **PrivateKeyFileName**  
 Location of private key file to be used for authentication if public key authentication is used on the server
 
+**PrivateKeyString**  
+Alternative way of providing the private key instead of using a file, supported private key formats:  PKCS #8, OpenSSH/OpenSSL and PuTTY .ppk
+
 **PrivateKeyFilePassword**  
 Password for private key file
 
