@@ -1,9 +1,9 @@
 # Frends.Cobalt
-FRENDS Cobalt is a FRENDS Task library built for transferring files between file, FTP, FTPS and SFTP endpoints with the possibility of processing the files during the transfer.
+FRENDS Cobalt is a FRENDS Task library built for transferring files between file, FTP, FTPS, SFTP and SMB endpoints with the possibility of processing the files during the transfer.
 
 With FRENDS Cobalt you can easily automate recurring file transfers within the enterprise. The transfers are configured as parts of a FRENDS4 Process in the FRENDS4 management site. The same site can be used to run and monitor the transfers as well.
 
-FRENDS Cobalt can read files from and deliver files to file system, FTP, FTPS and SFTP servers. Text file encoding can be changed and XML files can be converted using XSLT in message processing steps. Files can naturally be transferred without conversions as well.
+FRENDS Cobalt can read files from and deliver files to file system, FTP, FTPS, SFTP and SMB servers. Text file encoding can be changed and XML files can be converted using XSLT in message processing steps. Files can naturally be transferred without conversions as well.
 
 Possible errors in FRENDS Cobalt executions are reported to the Windows EventLog on the Agent and in FRENDS4 management site as well, so operators can take action as required. In addition, FRENDS Cobalt uses Log4Net for logging purposes that can be configured to e.g. send reports as needed.
 
@@ -99,7 +99,7 @@ There are two places where transfer parameters can be set:
 ## Source
 
 **Type**  
-[File | Ftp | Ftps | Sftp | ServiceBus]
+[File | Ftp | Ftps | Sftp | ServiceBus | Smb]
 
 The protocol type to use. The type specific configuration is defined in the sections below
 
@@ -137,6 +137,8 @@ Address of the server. E.g. "HOSTNAME" or "192.168.1.23"
 
 **Port**  
 Port number for server. E.g. 23
+
+    Note: Has no effect on SMB endpoints, which always use port 445.
 
 **Username**  
 Username to logon to server. 
@@ -286,6 +288,12 @@ Path of the entity (queue, topic or subscription) to send or receive messages to
     Things to note:
     The topics, queues or subscriptions will not be created automatically. If they do not exist, an error will be thrown and the transfer will fail.
     For source endpoints, only a single message will be received for a transfer, i.e. batch receive is not supported. The message will also be completed immediately after receive, even before it is written to disk to a temporary file.
+
+**Smb**  
+SMB specific settings. The typical use case for SMB endpoints is when trying to communicate with windows file shares from a non-windows environment.
+
+**ShareName**  
+The name of the file share.
 
 ## Destination  
 
